@@ -18,45 +18,51 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  PhoneBook? phone;
-
   @override
   void initState() {
     super.initState();
-
-    getData().then((value) {
-      phone = PhoneBook(value[0], value[1]);
-      setState(() {});
-    });
   }
 
   Future<List<dynamic>> getData() async {
-    var people = rootBundle.loadString("assets/people.json");
-    var phoneNumbers = await rootBundle.loadString("assets/number.json");
-    return [people, phoneNumbers];
+    var result = await rootBundle.loadString("assets/people.json");
+    List<String> peoples = result.split(',');
+    var output = await rootBundle.loadString("assets/number.json");
+    List<String> phoneNumbers = output.split(',');
+    return [
+      peoples,
+      phoneNumbers,
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    if (phone == null) {
-      return Scaffold(
-        body: Container(),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Abdul Hannan (246528)'),
       ),
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(phone!.getNameFromPhone(2)!),
-              Text(phone!.getPhoneFromNumber(2)!),
-            ],
-          ),
+          child: FutureBuilder(
+              future: getData(),
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                PhoneBook phoneBook = PhoneBook(
+                  namesList: snapshot.data![0],
+                  phoneNumberList: snapshot.data[1],
+                );
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Name: ${phoneBook.namesList[2]}'),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text('Phone Number: ${phoneBook.getNumberAgainstName(2)}'),
+                  ],
+                );
+              }),
         ),
       ),
     );
