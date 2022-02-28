@@ -1,6 +1,5 @@
-# a2
 
-Assignment 2 of MAD
+Assignment 2 of Mobile Application Development for SMEs
 
 ## Getting Started
 
